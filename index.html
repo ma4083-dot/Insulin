@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#3b82f6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="سكري">
+<title>M.Alsawah - إدارة السكري</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0f1e;--bg2:#111827;--bg3:#1a2235;--card:#141c2e;--border:#1e2d4a;
+  --blue:#3b82f6;--blue2:#1d4ed8;--cyan:#06b6d4;--green:#10b981;
+  --yellow:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--orange:#f97316;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+  --glow:0 0 20px rgba(59,130,246,.3);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(59,130,246,.08) 0%,transparent 50%),
+  radial-gradient(ellipse at 80% 100%,rgba(6,182,212,.06) 0%,transparent 50%);
+  overscroll-behavior:none;}
+.header{background:linear-gradient(135deg,#0f172a,#1e3a5f);border-bottom:1px solid var(--border);
+  padding:12px 14px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(10px);}
+.header-brand{display:flex;align-items:center;gap:10px;}
+.header-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--blue),var(--cyan));
+  border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:var(--glow);}
+.header-title{font-size:16px;font-weight:700;}
+.header-sub{font-size:10px;color:var(--text2);}
+.header-right{display:flex;align-items:center;gap:8px;}
+.header-time{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--cyan);
+  background:rgba(6,182,212,.1);padding:4px 10px;border-radius:7px;border:1px solid rgba(6,182,212,.2);}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--text3);}
+.sync-dot.ok{background:var(--green);box-shadow:0 0 6px var(--green);}
+.sync-dot.syncing{background:var(--yellow);animation:pulse 1s infinite;}
+.sync-dot.err{background:var(--red);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.tabs-container{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 8px;overflow-x:auto;scrollbar-width:none;}
+.tabs-container::-webkit-scrollbar{display:none;}
+.tabs{display:flex;gap:2px;padding:6px 0;white-space:nowrap;}
+.tab{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;
+  transition:all .2s;color:var(--text2);border:1px solid transparent;background:transparent;
+  display:flex;align-items:center;gap:4px;}
+.tab:hover{color:var(--text);background:var(--bg3);}
+.tab.active{background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;
+  border-color:var(--blue);box-shadow:0 0 10px rgba(59,130,246,.4);}
+
+.content{padding:12px;max-width:900px;margin:0 auto;}
+.page{display:none;}.page.active{display:block;animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;}
+.card-title{font-size:13.5px;font-weight:700;margin-bottom:11px;display:flex;align-items:center;gap:6px;color:var(--cyan);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;}
+
+.field{margin-bottom:9px;}
+.field label{display:block;font-size:11px;color:var(--text2);margin-bottom:3px;font-weight:500;}
+.field input,.field select,.field textarea{width:100%;background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);padding:9px 10px;border-radius:9px;font-size:13px;font-family:'Tajawal',sans-serif;
+  transition:border-color .2s;outline:none;-webkit-appearance:none;}
+.field input:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.12);}
+.field select option{background:var(--bg2);}
+.field textarea{resize:vertical;min-height:80px;font-size:12px;}
+
+.btn{padding:9px 16px;border-radius:9px;font-size:13px;font-weight:600;font-family:'Tajawal',sans-serif;
+  cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:5px;}
+.btn-primary{background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;box-shadow:0 4px 10px rgba(59,130,246,.3);}
+.btn-primary:active{transform:scale(.97);}
+.btn-green{background:linear-gradient(135deg,#059669,var(--green));color:#fff;}
+.btn-orange{background:linear-gradient(135deg,#ea580c,var(--orange));color:#fff;}
+.btn-red{background:linear-gradient(135deg,#dc2626,var(--red));color:#fff;}
+.btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
+.btn-sm{padding:5px 9px;font-size:11px;}
+.btn-full{width:100%;justify-content:center;}
+
+.result-box{background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(6,182,212,.05));
+  border:1px solid rgba(59,130,246,.3);border-radius:13px;padding:14px;text-align:center;margin-top:10px;}
+.result-dose{font-size:44px;font-weight:900;color:var(--cyan);font-family:'IBM Plex Mono',monospace;line-height:1;}
+.result-unit{font-size:12px;color:var(--text2);margin-top:3px;}
+.result-note{font-size:11.5px;color:var(--yellow);margin-top:6px;}
+
+.stat{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:11px;text-align:center;}
+.stat-val{font-size:24px;font-weight:800;font-family:'IBM Plex Mono',monospace;}
+.stat-label{font-size:10px;color:var(--text2);margin-top:2px;}
+.stat.good .stat-val{color:var(--green);}.stat.warn .stat-val{color:var(--yellow);}.stat.bad .stat-val{color:var(--red);}
+
+.sugar-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600;}
+.badge-low{background:rgba(6,182,212,.15);color:var(--cyan);}
+.badge-ok{background:rgba(16,185,129,.15);color:var(--green);}
+.badge-high{background:rgba(245,158,11,.15);color:var(--yellow);}
+.badge-vhigh{background:rgba(239,68,68,.15);color:var(--red);}
+.tag{display:inline-block;padding:2px 7px;border-radius:5px;font-size:10.5px;font-weight:600;margin:2px;}
+
+.tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.tbl th{background:var(--bg3);padding:8px 9px;text-align:right;font-weight:600;color:var(--text2);border-bottom:1px solid var(--border);}
+.tbl td{padding:8px 9px;border-bottom:1px solid rgba(30,45,74,.4);vertical-align:middle;}
+.tbl tr:hover td{background:rgba(59,130,246,.04);}
+
+.schedule-item{display:flex;align-items:center;gap:9px;padding:10px;background:var(--bg3);
+  border-radius:10px;margin-bottom:6px;border:1px solid var(--border);}
+.schedule-time{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:var(--blue);min-width:60px;}
+.schedule-info{flex:1;}
+.schedule-name{font-size:12px;font-weight:600;}
+.schedule-detail{font-size:10.5px;color:var(--text2);}
+.schedule-dose{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:800;color:var(--cyan);}
+
+.tip-item{display:flex;gap:9px;padding:10px;background:var(--bg3);border-radius:10px;
+  margin-bottom:6px;border-right:3px solid var(--blue);}
+.tip-icon{font-size:18px;min-width:24px;}
+.tip-text{font-size:12px;line-height:1.65;}
+
+.alert{padding:9px 12px;border-radius:9px;font-size:12px;margin-bottom:8px;display:flex;gap:6px;align-items:flex-start;}
+.alert-warn{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--yellow);}
+.alert-info{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);color:#93c5fd;}
+.alert-danger{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;}
+.alert-green{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:var(--green);}
+
+.mini-chart{height:70px;display:flex;align-items:flex-end;gap:2px;padding-top:6px;}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.bar{width:100%;border-radius:3px 3px 0 0;min-height:3px;}
+.bar-lbl{font-size:8px;color:var(--text3);}
+
+.section-header{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;
+  letter-spacing:1px;margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+
+.empty{text-align:center;padding:24px;color:var(--text3);font-size:12px;}
+.empty-icon{font-size:30px;margin-bottom:6px;}
+
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-label{font-size:12px;}
+.toggle-val{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:700;color:var(--cyan);}
+
+.del-btn{background:rgba(239,68,68,.15);border:none;color:var(--red);padding:3px 7px;border-radius:5px;cursor:pointer;font-size:11px;}
+.del-btn:hover{background:rgba(239,68,68,.3);}
+
+.insulin-card{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:12px;margin-bottom:9px;}
+.insulin-name{font-size:13.5px;font-weight:700;}
+.insulin-timeline{display:flex;gap:0;margin:8px 0;height:28px;border-radius:7px;overflow:hidden;}
+.timeline-seg{display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:#fff;padding:2px;}
+.insulin-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.istat{text-align:center;}
+.istat-val{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--cyan);}
+.istat-label{font-size:9.5px;color:var(--text3);}
+
+.bev-item{display:flex;align-items:center;gap:9px;padding:9px;background:var(--bg3);
+  border-radius:9px;margin-bottom:6px;border:1px solid var(--border);}
+.bev-icon{font-size:20px;min-width:28px;text-align:center;}
+.bev-info{flex:1;}
+.bev-name{font-size:12.5px;font-weight:600;}
+.bev-detail{font-size:11px;color:var(--text2);margin-top:2px;line-height:1.5;}
+.bev-rating{font-size:14px;white-space:nowrap;}
+
+.food-row{display:flex;align-items:center;padding:8px 10px;background:var(--bg3);
+  border-radius:9px;margin-bottom:5px;border:1px solid var(--border);gap:8px;cursor:pointer;}
+.food-row:active{border-color:var(--blue);background:rgba(59,130,246,.08);}
+.food-emoji{font-size:19px;min-width:26px;}
+.food-info{flex:1;}
+.food-name{font-size:12.5px;font-weight:600;}
+.food-detail{font-size:10.5px;color:var(--text2);}
+.food-carb{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:700;color:var(--yellow);min-width:45px;text-align:center;}
+.food-dose{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:800;color:var(--cyan);min-width:36px;text-align:center;}
+.food-gi{font-size:10px;padding:2px 6px;border-radius:5px;font-weight:600;white-space:nowrap;}
+.gi-low{background:rgba(16,185,129,.15);color:var(--green);}
+.gi-med{background:rgba(245,158,11,.15);color:var(--yellow);}
+.gi-high{background:rgba(239,68,68,.15);color:var(--red);}
+
+.ramadan-card{background:linear-gradient(135deg,rgba(139,92,246,.1),rgba(59,130,246,.05));
+  border:1px solid rgba(139,92,246,.3);border-radius:14px;padding:14px;margin-bottom:10px;}
+
+.progress-bar{height:7px;background:var(--bg3);border-radius:4px;overflow:hidden;margin-top:3px;}
+.progress-fill{height:100%;border-radius:4px;transition:width .4s ease;}
+
+/* SYNC STATUS CARD */
+.sync-card{background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(6,182,212,.04));
+  border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:12px;margin-bottom:10px;}
+.sync-status-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.sync-status-text{font-size:12px;color:var(--text2);}
+.sync-last{font-size:10.5px;color:var(--text3);}
+
+/* CODE BLOCK */
+.code-block{background:#0d1117;border:1px solid #30363d;border-radius:10px;padding:12px;
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#e6edf3;overflow-x:auto;
+  white-space:pre;line-height:1.6;max-height:320px;overflow-y:auto;direction:ltr;text-align:left;}
+.code-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.code-label{font-size:11px;color:var(--text2);font-weight:600;}
+.copy-btn{background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.3);color:var(--blue);
+  padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'Tajawal',sans-serif;}
+.copy-btn:hover{background:rgba(59,130,246,.35);}
+.copy-btn.copied{background:rgba(16,185,129,.2);border-color:rgba(16,185,129,.3);color:var(--green);}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:var(--bg2);border:1px solid var(--green);color:var(--green);
+  padding:9px 18px;border-radius:10px;font-size:12.5px;font-weight:600;
+  z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+
+/* INSTALL BANNER */
+.install-banner{background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(139,92,246,.1));
+  border:1px solid rgba(59,130,246,.3);border-radius:12px;padding:12px;margin-bottom:10px;
+  display:flex;align-items:center;gap:10px;}
+.install-banner-text{flex:1;font-size:12px;}
+.install-banner-title{font-weight:700;margin-bottom:2px;}
+.install-banner-sub{color:var(--text2);font-size:11px;}
+
+/* CONV */
+.conv-result{background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(59,130,246,.06));
+  border:1px solid rgba(139,92,246,.3);border-radius:10px;padding:12px;margin-top:8px;text-align:center;}
+
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+@media(max-width:600px){
+  .grid2{grid-template-columns:1fr;}
+  .grid3{grid-template-columns:1fr 1fr;}
+  .result-dose{font-size:38px;}
+  .content{padding:9px;}
+}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-brand">
+    <div class="header-icon">💉</div>
+    <div>
+      <div class="header-title">M.Alsawah</div>
+      <div class="header-sub">إدارة السكري v3 — PWA</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="sync-dot" id="sync-dot" title="حالة المزامنة"></div>
+    <div class="header-time" id="clock">--:--</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-container">
+  <div class="tabs">
+    <div class="tab active" onclick="showPage('home',this)">🏠 الرئيسية</div>
+    <div class="tab" onclick="showPage('calc',this)">💉 الجرعة</div>
+    <div class="tab" onclick="showPage('sugar',this)">📊 السكر</div>
+    <div class="tab" onclick="showPage('doses',this)">💊 الجرعات</div>
+    <div class="tab" onclick="showPage('insulin',this)">🔬 الأنسولين</div>
+    <div class="tab" onclick="showPage('food',this)">🍽️ الطعام</div>
+    <div class="tab" onclick="showPage('drinks',this)">🥤 المشروبات</div>
+    <div class="tab" onclick="showPage('ramadan',this)">🌙 رمضان</div>
+    <div class="tab" onclick="showPage('tips',this)">💡 نصائح</div>
+    <div class="tab" onclick="showPage('settings',this)">⚙️ إعدادات</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ====== HOME ====== -->
+<div class="page active" id="page-home">
+  <div id="install-banner" style="display:none" class="install-banner">
+    <div style="font-size:28px">📲</div>
+    <div class="install-banner-text">
+      <div class="install-banner-title">تثبيت كتطبيق</div>
+      <div class="install-banner-sub">أضفه للشاشة الرئيسية للوصول السريع</div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="installPWA()">تثبيت</button>
+  </div>
+
+  <div id="sync-banner" style="display:none" class="sync-card">
+    <div class="sync-status-row">
+      <div style="font-size:12px;font-weight:600;color:var(--green)">☁️ Google Sheets مرتبط</div>
+      <div class="sync-last" id="sync-last-time">—</div>
+    </div>
+    <div style="display:flex;gap:7px">
+      <button class="btn btn-green btn-sm" onclick="syncToSheets()" style="flex:1">⬆️ رفع البيانات</button>
+      <button class="btn btn-primary btn-sm" onclick="syncFromSheets()" style="flex:1">⬇️ جلب البيانات</button>
+    </div>
+  </div>
+
+  <div class="section-header">ملخص اليوم</div>
+  <div class="grid3">
+    <div class="stat good"><div class="stat-val" id="stat-today-doses">0</div><div class="stat-label">جرعات اليوم</div></div>
+    <div class="stat" id="stat-last-card"><div class="stat-val" id="stat-last-sugar">---</div><div class="stat-label">آخر سكر</div></div>
+    <div class="stat good"><div class="stat-val" id="stat-tir">--</div><div class="stat-label">% في المدى</div></div>
+  </div>
+
+  <div class="card" style="padding:10px">
+    <div class="card-title" style="margin-bottom:7px">📊 Time in Range</div>
+    <div style="display:flex;gap:5px;margin-bottom:5px;font-size:10.5px;flex-wrap:wrap" id="tir-legend"></div>
+    <div class="progress-bar" style="height:12px"><div class="progress-fill" id="tir-bar" style="background:var(--green);width:0%"></div></div>
+  </div>
+
+  <div class="section-header">الجدول اليومي</div>
+  <div class="card" style="padding:9px">
+    <div class="schedule-item">
+      <div class="schedule-time">فطار</div>
+      <div class="schedule-info"><div class="schedule-name">أكتراپيد</div><div class="schedule-detail">قبل الأكل بـ 30 دقيقة</div></div>
+      <div class="schedule-dose" id="sch-breakfast">-</div>
+    </div>
+    <div class="schedule-item">
+      <div class="schedule-time">غداء</div>
+      <div class="schedule-info"><div class="schedule-name">أكتراپيد</div><div class="schedule-detail">قبل الأكل بـ 30 دقيقة</div></div>
+      <div class="schedule-dose" id="sch-lunch">-</div>
+    </div>
+    <div class="schedule-item">
+      <div class="schedule-time">عشاء</div>
+      <div class="schedule-info"><div class="schedule-name">أكتراپيد</div><div class="schedule-detail">قبل الأكل بـ 30 دقيقة</div></div>
+      <div class="schedule-dose" id="sch-dinner">-</div>
+    </div>
+    <div class="schedule-item" style="border-color:rgba(139,92,246,.3)">
+      <div class="schedule-time" style="color:var(--purple)">12 🌙</div>
+      <div class="schedule-info"><div class="schedule-name" style="color:var(--purple)">لانتس</div><div class="schedule-detail">كل 24 ساعة</div></div>
+      <div class="schedule-dose" style="color:var(--purple)" id="sch-lantus">-</div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:0">
+    <div style="padding:11px 12px;font-size:13px;font-weight:700;color:var(--cyan)">📋 آخر قراءات السكر</div>
+    <table class="tbl" id="home-sugar-table"><tr><th>الوقت</th><th>القراءة</th><th>الحالة</th></tr></table>
+    <div class="empty" id="home-sugar-empty"><div class="empty-icon">📊</div>ابدأ بتسجيل قراءاتك</div>
+  </div>
+</div>
+
+<!-- ====== CALC ====== -->
+<div class="page" id="page-calc">
+  <div class="alert alert-warn">⚠️ أكتراپيد = أنسولين بشري — يُؤخذ قبل الأكل بـ <strong>30 دقيقة</strong></div>
+  <div class="card">
+    <div class="card-title">🍽️ حساب جرعة الوجبة</div>
+    <div class="grid2">
+      <div class="field">
+        <label>نوع الوجبة</label>
+        <select id="c-meal-type" onchange="fillMealCarbs()">
+          <option value="">-- اختر --</option>
+          <option value="breakfast" data-carb="60">فطار (~60جم)</option>
+          <option value="lunch" data-carb="80">غداء (~80جم)</option>
+          <option value="dinner" data-carb="60">عشاء (~60جم)</option>
+          <option value="snack" data-carb="25">خفيفة (~25جم)</option>
+          <option value="heavy" data-carb="100">دسمة (~100جم)</option>
+        </select>
+      </div>
+      <div class="field"><label>الكارب (جم)</label><input type="number" id="c-carbs" placeholder="يدوياً أو تلقائي" inputmode="decimal"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>السكر الحالي (mg/dL)</label><input type="number" id="c-sugar" placeholder="مثال: 150" inputmode="decimal"></div>
+      <div class="field">
+        <label>الوضع</label>
+        <select id="c-timing">
+          <option value="normal">عادي</option>
+          <option value="highfat">دسم/بروتين عالي</option>
+          <option value="exercise">بعد رياضة (−20%)</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="calcDose()">⚡ احسب الجرعة</button>
+    <div class="result-box" id="calc-result" style="display:none">
+      <div style="font-size:11px;color:var(--text2)">جرعة أكتراپيد</div>
+      <div class="result-dose" id="calc-dose">0</div>
+      <div class="result-unit">وحدة — قبل الأكل بـ 30 دقيقة</div>
+      <div class="result-note" id="calc-note"></div>
+      <div style="margin-top:8px;font-size:10.5px;color:var(--text2);text-align:right" id="calc-breakdown"></div>
+      <button class="btn btn-green btn-sm" style="margin-top:9px" onclick="saveDoseFromCalc()">💾 حفظ الجرعة</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">⚡ وجبة مفاجئة</div>
+    <div class="alert alert-warn">أكل بدون تخطيط؟ أعطِ الجرعة فوراً</div>
+    <div class="grid2">
+      <div class="field"><label>السكر الآن</label><input type="number" id="e-sugar" placeholder="mg/dL" inputmode="decimal"></div>
+      <div class="field">
+        <label>حجم الوجبة</label>
+        <select id="e-size">
+          <option value="30">صغيرة ~30جم</option>
+          <option value="60" selected>متوسطة ~60جم</option>
+          <option value="90">كبيرة ~90جم</option>
+          <option value="120">كبيرة جداً ~120جم</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-orange btn-full" onclick="calcEmergency()">⚡ جرعة طوارئ</button>
+    <div class="result-box" id="emer-result" style="display:none">
+      <div style="font-size:11px;color:var(--yellow)">⚠️ أعطِها الآن</div>
+      <div class="result-dose" id="emer-dose" style="color:var(--yellow)">0</div>
+      <div class="result-unit">وحدة</div>
+      <div class="result-note" id="emer-note"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🔧 جرعة تصحيحية</div>
+    <div class="field"><label>السكر الحالي</label><input type="number" id="corr-sugar" placeholder="mg/dL" inputmode="decimal"></div>
+    <button class="btn btn-primary btn-full" onclick="calcCorrection()">حساب</button>
+    <div class="result-box" id="corr-result" style="display:none">
+      <div style="font-size:11px;color:var(--text2)">تصحيحية (بدون أكل)</div>
+      <div class="result-dose" id="corr-dose" style="color:var(--orange)">0</div>
+      <div class="result-unit">وحدة</div>
+      <div class="result-note" id="corr-note"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SUGAR ====== -->
+<div class="page" id="page-sugar">
+  <div class="card">
+    <div class="card-title">📌 تسجيل قراءة</div>
+    <div class="grid2">
+      <div class="field"><label>القراءة (mg/dL)</label><input type="number" id="s-value" placeholder="مثال: 140" inputmode="decimal"></div>
+      <div class="field">
+        <label>التوقيت</label>
+        <select id="s-timing">
+          <option value="fasting">صيام</option>
+          <option value="before-breakfast">قبل الفطار</option>
+          <option value="after-breakfast">بعد الفطار 2ساعة</option>
+          <option value="before-lunch">قبل الغداء</option>
+          <option value="after-lunch">بعد الغداء 2ساعة</option>
+          <option value="before-dinner">قبل العشاء</option>
+          <option value="after-dinner">بعد العشاء 2ساعة</option>
+          <option value="bedtime">قبل النوم</option>
+          <option value="night">3 الفجر</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>ملاحظة</label><input type="text" id="s-note" placeholder="رياضة، مريض، ضغط..."></div>
+    <button class="btn btn-primary btn-full" onclick="saveSugar()">💾 حفظ</button>
+  </div>
+  <div class="card">
+    <div class="card-title">📊 إحصائيات</div>
+    <div class="grid3">
+      <div class="stat good"><div class="stat-val" id="ss-avg">---</div><div class="stat-label">متوسط</div></div>
+      <div class="stat good"><div class="stat-val" id="ss-min">---</div><div class="stat-label">أدنى</div></div>
+      <div class="stat warn"><div class="stat-val" id="ss-max">---</div><div class="stat-label">أعلى</div></div>
+    </div>
+    <div style="margin-top:9px"><div style="font-size:10px;color:var(--text2);margin-bottom:4px">آخر قراءات</div>
+      <div class="mini-chart" id="mini-chart"></div></div>
+    <div style="margin-top:10px" id="tir-detail"></div>
+  </div>
+  <div class="card" style="padding:0">
+    <div style="padding:11px 12px;display:flex;align-items:center;justify-content:space-between">
+      <div class="card-title" style="margin:0">📋 السجل</div>
+      <button class="btn btn-red btn-sm" onclick="clearSugar()">🗑️ مسح</button>
+    </div>
+    <table class="tbl" id="sugar-table"><tr><th>التاريخ</th><th>الوقت</th><th>القراءة</th><th>الحالة</th><th>ملاحظة</th><th></th></tr></table>
+    <div class="empty" id="sugar-empty"><div class="empty-icon">📊</div>لا توجد قراءات</div>
+  </div>
+</div>
+
+<!-- ====== DOSES ====== -->
+<div class="page" id="page-doses">
+  <div class="card">
+    <div class="card-title">💉 تسجيل جرعة</div>
+    <div class="grid2">
+      <div class="field">
+        <label>نوع الأنسولين</label>
+        <select id="d-type">
+          <option value="actrapid">أكتراپيد</option>
+          <option value="lantus">لانتس</option>
+          <option value="novorapid">نوفوراپيد/Humalog</option>
+          <option value="other">آخر</option>
+        </select>
+      </div>
+      <div class="field"><label>الجرعة (وحدة)</label><input type="number" id="d-dose" placeholder="مثال: 8" inputmode="decimal"></div>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label>الوجبة</label>
+        <select id="d-meal">
+          <option value="breakfast">فطار</option><option value="lunch">غداء</option>
+          <option value="dinner">عشاء</option><option value="bedtime">قبل النوم</option>
+          <option value="correction">تصحيحية</option><option value="emergency">طوارئ</option>
+        </select>
+      </div>
+      <div class="field"><label>السكر وقت الجرعة</label><input type="number" id="d-sugar" placeholder="اختياري" inputmode="decimal"></div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="saveDose()">💾 حفظ</button>
+  </div>
+  <div class="card" style="padding:0">
+    <div style="padding:11px 12px;display:flex;align-items:center;justify-content:space-between">
+      <div class="card-title" style="margin:0">📋 السجل</div>
+      <button class="btn btn-red btn-sm" onclick="clearDoses()">🗑️ مسح</button>
+    </div>
+    <table class="tbl" id="doses-table"><tr><th>التاريخ</th><th>الوقت</th><th>النوع</th><th>الجرعة</th><th>الوجبة</th><th>السكر</th><th></th></tr></table>
+    <div class="empty" id="doses-empty"><div class="empty-icon">💉</div>لا توجد جرعات</div>
+  </div>
+</div>
+
+<!-- ====== INSULIN ====== -->
+<div class="page" id="page-insulin">
+  <div class="alert alert-info">ℹ️ بيانات محدّثة 2025 — ADA Standards of Care 2025</div>
+  <div class="insulin-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div><div class="insulin-name">💉 أكتراپيد</div><div style="font-size:10.5px;color:var(--text2)">Regular Human Insulin</div></div>
+      <span class="tag" style="background:rgba(59,130,246,.2);color:var(--blue)">وجبات</span>
+    </div>
+    <div class="insulin-timeline">
+      <div class="timeline-seg" style="width:18%;background:rgba(100,116,139,.4)">انتظار</div>
+      <div class="timeline-seg" style="width:37%;background:var(--blue)">بداية</div>
+      <div class="timeline-seg" style="width:27%;background:var(--cyan)">ذروة</div>
+      <div class="timeline-seg" style="width:18%;background:rgba(6,182,212,.3)">نهاية</div>
+    </div>
+    <div class="insulin-stats">
+      <div class="istat"><div class="istat-val">30-60 د</div><div class="istat-label">البداية</div></div>
+      <div class="istat"><div class="istat-val">2-4 ساعة</div><div class="istat-label">الذروة</div></div>
+      <div class="istat"><div class="istat-val">6-8 ساعات</div><div class="istat-label">المدة</div></div>
+    </div>
+    <div style="margin-top:8px;font-size:11.5px;color:var(--yellow)">⚠️ خذه قبل الأكل بـ 30 دقيقة — وليس 15!</div>
+    <div style="margin-top:5px;font-size:10.5px;color:var(--text3)">🔄 بديل مكافئ: Humulin R (نفس الجرعة) | NovoRapid/Humalog (قلل 10-15%)</div>
+  </div>
+  <div class="insulin-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div><div class="insulin-name">🌙 لانتس</div><div style="font-size:10.5px;color:var(--text2)">Insulin Glargine U-100</div></div>
+      <span class="tag" style="background:rgba(139,92,246,.2);color:var(--purple)">أساسي</span>
+    </div>
+    <div class="insulin-timeline">
+      <div class="timeline-seg" style="width:8%;background:rgba(100,116,139,.4)">▶</div>
+      <div class="timeline-seg" style="width:84%;background:var(--purple)">مستوى ثابت — بدون ذروة</div>
+      <div class="timeline-seg" style="width:8%;background:rgba(139,92,246,.3)">■</div>
+    </div>
+    <div class="insulin-stats">
+      <div class="istat"><div class="istat-val">1-2 ساعة</div><div class="istat-label">البداية</div></div>
+      <div class="istat"><div class="istat-val">بلا ذروة</div><div class="istat-label">الميزة</div></div>
+      <div class="istat"><div class="istat-val">20-24 ساعة</div><div class="istat-label">المدة</div></div>
+    </div>
+    <div style="margin-top:5px;font-size:10.5px;color:var(--text3)">🔄 بدائل: Basaglar / Semglee (نفس الجرعة) | Toujeo U-300 (+10%) | Tresiba 42+ساعة</div>
+  </div>
+  <div class="insulin-card" style="border-color:rgba(16,185,129,.3)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div><div class="insulin-name" style="color:var(--green)">⚡ سريع المفعول (Rapid Analog)</div>
+        <div style="font-size:10.5px;color:var(--text2)">NovoRapid | Humalog | Apidra | Fiasp</div></div>
+      <span class="tag" style="background:rgba(16,185,129,.2);color:var(--green)">الأحدث</span>
+    </div>
+    <div class="insulin-stats">
+      <div class="istat"><div class="istat-val" style="color:var(--green)">10-20 د</div><div class="istat-label">البداية</div></div>
+      <div class="istat"><div class="istat-val" style="color:var(--green)">1-3 ساعة</div><div class="istat-label">الذروة</div></div>
+      <div class="istat"><div class="istat-val" style="color:var(--green)">3-5 ساعات</div><div class="istat-label">المدة</div></div>
+    </div>
+    <div style="margin-top:7px;font-size:11.5px;color:var(--text2)">✅ أمريح من أكتراپيد — قبل الأكل بـ 10-15 دقيقة فقط<br>🔥 <strong>Fiasp</strong>: يبدأ في 5 دقائق — يمكن أخذه مع بداية الأكل أو بعده</div>
+  </div>
+  <div class="insulin-card" style="border-color:rgba(249,115,22,.3)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div><div class="insulin-name" style="color:var(--orange)">🕐 فائق الطول (Ultra-Long)</div>
+        <div style="font-size:10.5px;color:var(--text2)">Tresiba (Degludec) | Toujeo U-300</div></div>
+      <span class="tag" style="background:rgba(249,115,22,.2);color:var(--orange)">2025</span>
+    </div>
+    <div class="insulin-stats">
+      <div class="istat"><div class="istat-val" style="color:var(--orange)">1-2 ساعة</div><div class="istat-label">البداية</div></div>
+      <div class="istat"><div class="istat-val" style="color:var(--orange)">بلا ذروة</div><div class="istat-label">الميزة</div></div>
+      <div class="istat"><div class="istat-val" style="color:var(--orange)">42+ ساعة</div><div class="istat-label">المدة</div></div>
+    </div>
+    <div style="margin-top:7px;font-size:11.5px;color:var(--text2)">Tresiba: مرونة في التوقيت — مثالي لرمضان والسفر</div>
+  </div>
+  <div class="section-header">🔄 حاسبة التحويل</div>
+  <div class="card">
+    <div class="alert alert-warn">⚠️ استشر طبيبك دائماً قبل تغيير الأنسولين</div>
+    <div class="grid2">
+      <div class="field"><label>الجرعة الحالية (وحدة)</label><input type="number" id="conv-dose" placeholder="مثال: 10" inputmode="decimal"></div>
+      <div class="field">
+        <label>التحويل إلى</label>
+        <select id="conv-to">
+          <option value="novorapid">أكتراپيد → NovoRapid/Humalog</option>
+          <option value="fiasp">أكتراپيد → Fiasp</option>
+          <option value="humulinR">أكتراپيد → Humulin R</option>
+          <option value="toujeo">لانتس → Toujeo U-300</option>
+          <option value="tresiba">لانتس → Tresiba (Degludec)</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="calcConversion()">حساب التحويل</button>
+    <div class="conv-result" id="conv-result" style="display:none">
+      <div style="font-size:11px;color:var(--text2)">الجرعة المقترحة</div>
+      <div style="font-size:34px;font-weight:900;color:var(--purple);font-family:'IBM Plex Mono',monospace" id="conv-output">0</div>
+      <div style="font-size:11px;color:var(--text2)" id="conv-unit">وحدة</div>
+      <div style="font-size:10.5px;color:var(--yellow);margin-top:5px" id="conv-note"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== FOOD ====== -->
+<div class="page" id="page-food">
+  <div class="card">
+    <div class="card-title">🍽️ حاسبة الطعام</div>
+    <div class="grid2">
+      <div class="field"><label>الكارب (جم)</label><input type="number" id="f-carbs" placeholder="أو اختر من القائمة" inputmode="decimal"></div>
+      <div class="field"><label>السكر الحالي</label><input type="number" id="f-sugar" placeholder="اختياري" inputmode="decimal"></div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="calcFood()">⚡ احسب</button>
+    <div class="result-box" id="food-result" style="display:none">
+      <div style="font-size:11px;color:var(--text2)">جرعة أكتراپيد</div>
+      <div class="result-dose" id="food-dose">0</div>
+      <div class="result-unit">وحدة — قبل الأكل بـ 30 دقيقة</div>
+      <div class="result-note" id="food-note"></div>
+    </div>
+  </div>
+  <div class="section-header">اضغط على أي طعام لاستخدامه</div>
+  <div class="card"><div class="card-title">🍚 نشويات</div><div id="food-starches"></div></div>
+  <div class="card"><div class="card-title">🥩 بروتينات</div><div id="food-proteins"></div></div>
+  <div class="card"><div class="card-title">🍎 فواكه</div><div id="food-fruits"></div></div>
+  <div class="card"><div class="card-title">🥗 خضروات</div><div id="food-vegs"></div></div>
+  <div class="card"><div class="card-title">🍮 حلويات</div><div id="food-sweets"></div></div>
+  <div class="card"><div class="card-title">🫙 أكلات مصرية</div><div id="food-egyptian"></div></div>
+</div>
+
+<!-- ====== DRINKS ====== -->
+<div class="page" id="page-drinks">
+  <div class="card">
+    <div class="card-title">💚 الأفضل</div>
+    <div class="bev-item"><div class="bev-icon">💧</div><div class="bev-info"><div class="bev-name">ماء عادي</div><div class="bev-detail">الأفضل على الإطلاق. 8-10 أكواب يومياً. كوب قبل كل وجبة.</div></div><div class="bev-rating">⭐⭐⭐⭐⭐</div></div>
+    <div class="bev-item"><div class="bev-icon">☕</div><div class="bev-info"><div class="bev-name">قهوة / شاي بدون سكر</div><div class="bev-detail">قهوة سوداء تحسّن حساسية الأنسولين. شاي أخضر ممتاز.</div></div><div class="bev-rating">⭐⭐⭐⭐⭐</div></div>
+    <div class="bev-item"><div class="bev-icon">🫧</div><div class="bev-info"><div class="bev-name">مياه فوارة طبيعية</div><div class="bev-detail">بدون سكر أو محليات. بديل ممتاز للمياه العادية.</div></div><div class="bev-rating">⭐⭐⭐⭐⭐</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">⚠️ بحذر</div>
+    <div class="bev-item"><div class="bev-icon">🥤</div><div class="bev-info"><div class="bev-name">دايت سودا (Pepsi Light, Diet Coke)</div>
+      <div class="bev-detail"><span class="tag" style="background:rgba(245,158,11,.15);color:var(--yellow)">لا يرفع السكر مباشرة</span><br>دراسة 2025: المحليات قد تزيد الشهية وتقلل حساسية الأنسولين مع الإفراط. 1-2 علبة أسبوعياً مقبول.</div></div><div class="bev-rating">⭐⭐⭐</div></div>
+    <div class="bev-item"><div class="bev-icon">🍊</div><div class="bev-info"><div class="bev-name">عصير طازج 100%</div><div class="bev-detail">كوب برتقال = 25-30جم كارب. بدون ألياف = ارتفاع سريع. الأفضل: الفاكهة كاملة.</div></div><div class="bev-rating">⭐⭐</div></div>
+    <div class="bev-item"><div class="bev-icon">🥛</div><div class="bev-info"><div class="bev-name">حليب طازج</div><div class="bev-detail">كوب (240مل) = 12جم لاكتوز. GI منخفض (32). كوبان يومياً مقبول.</div></div><div class="bev-rating">⭐⭐⭐</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">🚫 تجنب</div>
+    <div class="bev-item"><div class="bev-icon">🥤</div><div class="bev-info"><div class="bev-name">غازي عادي (Pepsi, Sprite, Fanta)</div><div class="bev-detail"><span class="tag" style="background:rgba(239,68,68,.15);color:var(--red)">ممنوع</span> علبة = 40جم سكر — يرفع السكر خلال دقائق. للطوارئ فقط.</div></div><div class="bev-rating">⭐</div></div>
+    <div class="bev-item"><div class="bev-icon">⚡</div><div class="bev-info"><div class="bev-name">مشروبات طاقة (Redbull, Monster)</div><div class="bev-detail"><span class="tag" style="background:rgba(239,68,68,.15);color:var(--red)">ممنوع</span> سكر + كافيين زائد = ارتفاع سكر حاد + ضغط على القلب.</div></div><div class="bev-rating">⭐</div></div>
+    <div class="bev-item"><div class="bev-icon">🍺</div><div class="bev-info"><div class="bev-name">كحول</div><div class="bev-detail"><span class="tag" style="background:rgba(239,68,68,.15);color:var(--red)">خطير</span> يسبب هبوط متأخر بعد 12-24 ساعة ويمنع الكبد من تصحيح السكر.</div></div><div class="bev-rating">⭐</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">🆘 طوارئ الهبوط &lt;70</div>
+    <div class="bev-item"><div class="bev-icon">🧃</div><div class="bev-info"><div class="bev-name">عصير فاكهة صغير (125مل)</div><div class="bev-detail">≈15جم — يرفع السكر خلال 10-15 دقيقة. انتظر 15 دقيقة ثم قس.</div></div><div class="bev-rating">🚨</div></div>
+    <div class="bev-item"><div class="bev-icon">🥤</div><div class="bev-info"><div class="bev-name">كوكا كولا عادية (نصف علبة)</div><div class="bev-detail">≈20جم. لا تستخدم الدايت — لن يرفع السكر!</div></div><div class="bev-rating">🚨</div></div>
+    <div class="bev-item"><div class="bev-icon">🍬</div><div class="bev-info"><div class="bev-name">3-4 حبات سكر / حلوى</div><div class="bev-detail">≈15جم. اذبها تحت اللسان للامتصاص الأسرع.</div></div><div class="bev-rating">🚨</div></div>
+  </div>
+</div>
+
+<!-- ====== RAMADAN ====== -->
+<div class="page" id="page-ramadan">
+  <div class="ramadan-card">
+    <div style="font-size:20px;margin-bottom:6px">🌙 بروتوكول رمضان 2025</div>
+    <div style="font-size:11.5px;color:var(--text2);line-height:1.7">استشر طبيبك قبل رمضان بأسبوعين على الأقل.</div>
+  </div>
+  <div class="alert alert-danger">⚠️ هذه إرشادات عامة فقط — استشر طبيبك</div>
+  <div class="card">
+    <div class="card-title">💾 جرعات رمضان</div>
+    <div class="grid2">
+      <div class="field"><label>أكتراپيد — الإفطار</label><input type="number" id="r-iftar" inputmode="decimal"></div>
+      <div class="field"><label>أكتراپيد — السحور (50-75%)</label><input type="number" id="r-suhoor" inputmode="decimal"></div>
+    </div>
+    <div class="field"><label>لانتس (قبل الإفطار في رمضان)</label><input type="number" id="r-lantus" inputmode="decimal"></div>
+    <div class="field"><label>ملاحظات الطبيب</label><input type="text" id="r-notes"></div>
+    <button class="btn btn-primary btn-full" onclick="saveRamadan()">💾 حفظ</button>
+    <div id="ramadan-saved" style="display:none;margin-top:7px;text-align:center;color:var(--green);font-size:11px">✅ تم الحفظ</div>
+  </div>
+  <div class="card">
+    <div class="card-title">📋 إرشادات</div>
+    <div class="tip-item" style="border-color:var(--purple)"><div class="tip-icon">💉</div><div class="tip-text"><strong>الإفطار:</strong> أكتراپيد قبل الإفطار بـ 30 دقيقة (حوالي 15 دقيقة بعد الأذان).</div></div>
+    <div class="tip-item" style="border-color:var(--purple)"><div class="tip-icon">🌅</div><div class="tip-text"><strong>السحور:</strong> 50-75% من الجرعة المعتادة. وجبة بروتين + كارب بطيء (خبز بُر، شوفان، فول).</div></div>
+    <div class="tip-item" style="border-color:var(--cyan)"><div class="tip-icon">🌙</div><div class="tip-text"><strong>لانتس:</strong> انقله من منتصف الليل إلى قبل الإفطار لتجنب الهبوط أثناء الصيام.</div></div>
+    <div class="tip-item" style="border-color:var(--red)"><div class="tip-icon">⚠️</div><div class="tip-text"><strong>أفطر فوراً إذا:</strong> سكر &lt;70 أو &gt;300 mg/dL أو دوخة شديدة.</div></div>
+  </div>
+</div>
+
+<!-- ====== TIPS ====== -->
+<div class="page" id="page-tips">
+  <div class="card">
+    <div class="card-title">🏆 نصائح 2025</div>
+    <div class="tip-item" style="border-color:var(--green)"><div class="tip-icon">🥗</div><div class="tip-text"><strong>ترتيب الأكل:</strong> خضروات وبروتين أولاً، ثم نشويات. يقلل ارتفاع السكر 30-40%.</div></div>
+    <div class="tip-item" style="border-color:var(--green)"><div class="tip-icon">🚶</div><div class="tip-text"><strong>مشي 15 دقيقة بعد الأكل:</strong> يخفض ذروة السكر بعد الوجبة أكثر من أي وقت آخر.</div></div>
+    <div class="tip-item" style="border-color:var(--cyan)"><div class="tip-icon">💧</div><div class="tip-text"><strong>كوب ماء قبل الأكل:</strong> يبطئ الامتصاص ويزيد الشبع. 8-10 أكواب يومياً.</div></div>
+    <div class="tip-item" style="border-color:var(--yellow)"><div class="tip-icon">😴</div><div class="tip-text"><strong>نوم 7-8 ساعات:</strong> قلة النوم ترفع مقاومة الأنسولين 20-30% في اليوم التالي.</div></div>
+    <div class="tip-item" style="border-color:var(--blue)"><div class="tip-icon">🧘</div><div class="tip-text"><strong>5 دقائق تنفس:</strong> (4 شهيق، 6 زفير) تخفض الكورتيزول الذي يرفع السكر مباشرة.</div></div>
+    <div class="tip-item" style="border-color:var(--purple)"><div class="tip-icon">📱</div><div class="tip-text"><strong>CGM (Libre/Dexcom):</strong> يقيس كل دقيقة. الهدف Time in Range &gt;70%. أحسن أداة للتعديل.</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">⚠️ قاعدة 15-15 للهبوط</div>
+    <div class="alert alert-danger">🚨 سكر &lt;70 — تصرف فوراً!</div>
+    <div class="grid2">
+      <div style="background:rgba(239,68,68,.07);border-radius:9px;padding:9px;font-size:11.5px;line-height:1.8;border:1px solid rgba(239,68,68,.2)">
+        😰 تعرق مفاجئ<br>🫀 خفقان<br>😵 دوخة وضعف<br>🤲 رعشة<br>👁️ ضبابية بصر
+      </div>
+      <div style="background:rgba(16,185,129,.07);border-radius:9px;padding:9px;font-size:11.5px;line-height:1.8;border:1px solid rgba(16,185,129,.2)">
+        <strong style="color:var(--green)">الحل:</strong><br>
+        1️⃣ 15جم كارب سريع<br>2️⃣ انتظر 15 دقيقة<br>3️⃣ قس مجدداً<br>4️⃣ كرر إذا لازال &lt;70
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📏 المستهدفات (ADA 2025)</div>
+    <div class="toggle-row"><span class="toggle-label">🌅 صيام</span><span class="toggle-val">80-130</span></div>
+    <div class="toggle-row"><span class="toggle-label">🍽️ بعد الوجبة 2 ساعة</span><span class="toggle-val">&lt;180</span></div>
+    <div class="toggle-row"><span class="toggle-label">🌙 قبل النوم</span><span class="toggle-val">100-140</span></div>
+    <div class="toggle-row"><span class="toggle-label">📊 HbA1c</span><span class="toggle-val">&lt;7%</span></div>
+    <div class="toggle-row"><span class="toggle-label">📊 Time in Range</span><span class="toggle-val">&gt;70%</span></div>
+    <div class="toggle-row"><span class="toggle-label">⚠️ هبوط خطر</span><span class="toggle-val" style="color:var(--red)">&lt;70</span></div>
+    <div class="toggle-row"><span class="toggle-label">⚠️ ارتفاع خطر</span><span class="toggle-val" style="color:var(--red)">&gt;300</span></div>
+  </div>
+</div>
+
+<!-- ====== SETTINGS ====== -->
+<div class="page" id="page-settings">
+
+  <!-- GOOGLE SHEETS SYNC -->
+  <div class="card" style="border-color:rgba(16,185,129,.3)">
+    <div class="card-title" style="color:var(--green)">☁️ مزامنة Google Sheets</div>
+    <div class="field">
+      <label>رابط Apps Script (Web App URL)</label>
+      <input type="text" id="gs-url" placeholder="https://script.google.com/macros/s/..." style="font-size:11px;">
+    </div>
+    <div style="display:flex;gap:7px;margin-bottom:10px">
+      <button class="btn btn-green btn-sm" onclick="syncToSheets()" style="flex:1">⬆️ رفع البيانات</button>
+      <button class="btn btn-primary btn-sm" onclick="syncFromSheets()" style="flex:1">⬇️ جلب البيانات</button>
+      <button class="btn btn-ghost btn-sm" onclick="saveGSUrl()">💾 حفظ URL</button>
+    </div>
+    <div id="sync-status" style="font-size:11px;color:var(--text2);text-align:center"></div>
+
+    <!-- APPS SCRIPT CODE -->
+    <div style="margin-top:10px">
+      <div class="code-header">
+        <div class="copy-btn" onclick="copyAppScript()" id="copy-as-btn">📋 انسخ كود Apps Script</div>
+        <div class="code-label">الصقه في Google Apps Script</div>
+      </div>
+      <div class="code-block" id="apps-script-code"></div>
+    </div>
+
+    <!-- INSTRUCTIONS -->
+    <div style="margin-top:10px;background:var(--bg3);border-radius:9px;padding:10px;font-size:11.5px;line-height:1.9;border:1px solid var(--border)">
+      <div style="font-weight:700;color:var(--cyan);margin-bottom:5px">📖 خطوات الإعداد:</div>
+      <div>1️⃣ افتح <a href="https://sheets.google.com" target="_blank" style="color:var(--blue)">Google Sheets</a> وأنشئ ملف جديد</div>
+      <div>2️⃣ من القائمة: <strong>Extensions → Apps Script</strong></div>
+      <div>3️⃣ احذف الكود الموجود والصق الكود أعلاه</div>
+      <div>4️⃣ اضغط <strong>Deploy → New Deployment → Web App</strong></div>
+      <div>5️⃣ Execute as: <strong>Me</strong> | Who has access: <strong>Anyone</strong></div>
+      <div>6️⃣ انسخ الـ URL والصقه في الحقل أعلاه</div>
+      <div>7️⃣ اضغط <strong>💾 حفظ URL</strong> ثم <strong>⬆️ رفع البيانات</strong></div>
+    </div>
+  </div>
+
+  <!-- DOSE SETTINGS -->
+  <div class="card">
+    <div class="card-title">⚙️ إعدادات الجرعات</div>
+    <div class="field"><label>نسبة ICR: 1 وحدة لكل __ جم كارب</label><input type="number" id="set-ratio" value="10" inputmode="decimal"></div>
+    <div class="field"><label>عامل التصحيح ISF: 1 وحدة تخفض السكر بـ __ mg/dL</label><input type="number" id="set-cf" value="50" inputmode="decimal"></div>
+    <div class="field"><label>السكر المستهدف (mg/dL)</label><input type="number" id="set-target" value="120" inputmode="decimal"></div>
+    <div class="section-header">جرعات أكتراپيد الافتراضية</div>
+    <div class="grid3">
+      <div class="field"><label>فطار</label><input type="number" id="set-b" value="8" inputmode="decimal"></div>
+      <div class="field"><label>غداء</label><input type="number" id="set-l" value="10" inputmode="decimal"></div>
+      <div class="field"><label>عشاء</label><input type="number" id="set-d" value="8" inputmode="decimal"></div>
+    </div>
+    <div class="field"><label>جرعة لانتس (12 ليل)</label><input type="number" id="set-lantus" value="12" inputmode="decimal"></div>
+    <button class="btn btn-primary btn-full" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+    <div id="settings-saved" style="display:none;text-align:center;color:var(--green);font-size:11px;margin-top:6px">✅ تم الحفظ</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📊 الإعدادات الحالية</div>
+    <div id="settings-display"></div>
+  </div>
+
+  <!-- GITHUB PAGES INSTRUCTIONS -->
+  <div class="card" style="border-color:rgba(139,92,246,.3)">
+    <div class="card-title" style="color:var(--purple)">🐙 نشر على GitHub Pages</div>
+    <div style="font-size:11.5px;line-height:1.9;background:var(--bg3);border-radius:9px;padding:10px;border:1px solid var(--border)">
+      <div style="font-weight:700;color:var(--purple);margin-bottom:5px">📖 خطوات النشر:</div>
+      <div>1️⃣ أنشئ حساب على <a href="https://github.com" target="_blank" style="color:var(--blue)">github.com</a></div>
+      <div>2️⃣ أنشئ Repository جديد اسمه: <code style="color:var(--cyan)">diabetes-app</code></div>
+      <div>3️⃣ ارفع الملفات الثلاثة: <code style="color:var(--cyan)">index.html</code>, <code style="color:var(--cyan)">manifest.json</code>, <code style="color:var(--cyan)">sw.js</code></div>
+      <div>4️⃣ من Settings → Pages → Source: <strong>main branch</strong></div>
+      <div>5️⃣ رابطك سيكون: <code style="color:var(--green)">https://USERNAME.github.io/diabetes-app</code></div>
+      <div>6️⃣ افتح الرابط من موبايلك → اضغط <strong>"Add to Home Screen"</strong></div>
+      <div style="color:var(--yellow);margin-top:5px">⚡ سيعمل التطبيق offline بعد أول تحميل!</div>
+    </div>
+    <div style="margin-top:8px">
+      <div class="code-header">
+        <div class="code-label">هيكل الملفات المطلوب على GitHub</div>
+        <div class="copy-btn" onclick="copyFileStructure()">📋 نسخ</div>
+      </div>
+      <div class="code-block" style="max-height:120px">diabetes-app/
+├── index.html     ← الملف الرئيسي (هذا الملف)
+├── manifest.json  ← ملف PWA
+├── sw.js          ← Service Worker
+└── icon-192.png   ← أيقونة (اختياري)</div>
+    </div>
+  </div>
+
+  <!-- EXPORT / IMPORT -->
+  <div class="card">
+    <div class="card-title">📤 تصدير / استيراد</div>
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <button class="btn btn-green" onclick="exportData()">📤 تصدير كل البيانات (JSON)</button>
+      <button class="btn btn-orange" onclick="document.getElementById('import-file').click()">📥 استيراد بيانات</button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+      <button class="btn btn-red" onclick="if(confirm('مسح كل البيانات؟')){clearAll()}">🗑️ مسح كل شيء</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+// =========================================
+// DATA LAYER
+// =========================================
+const DB={
+  get:k=>{try{return JSON.parse(localStorage.getItem('msaw3_'+k)||'null');}catch(e){return null;}},
+  set:(k,v)=>localStorage.setItem('msaw3_'+k,JSON.stringify(v))
+};
+let settings=DB.get('settings')||{ratio:10,cf:50,target:120,b:8,l:10,d:8,lantus:12};
+let sugarLog=DB.get('sugar')||[];
+let dosesLog=DB.get('doses')||[];
+let gsUrl=DB.get('gsUrl')||'';
+
+// =========================================
+// APPS SCRIPT CODE (stored as string)
+// =========================================
+const APPS_SCRIPT_CODE = `// ====================================================
+// M.Alsawah Diabetes App — Google Apps Script
+// نسخ هذا الكود كاملاً في Apps Script
+// ====================================================
+
+const SHEET_NAME_SUGAR  = 'قراءات_السكر';
+const SHEET_NAME_DOSES  = 'الجرعات';
+const SHEET_NAME_CONFIG = 'الإعدادات';
+
+function doGet(e) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const action = e.parameter.action || 'getData';
+
+    if (action === 'getData') {
+      const sugar  = getSheetData(ss, SHEET_NAME_SUGAR);
+      const doses  = getSheetData(ss, SHEET_NAME_DOSES);
+      const config = getConfig(ss);
+      return jsonResponse({ ok: true, sugar, doses, config });
+    }
+    return jsonResponse({ ok: false, error: 'Unknown action' });
+  } catch(err) {
+    return jsonResponse({ ok: false, error: err.toString() });
+  }
+}
+
+function doPost(e) {
+  try {
+    const data   = JSON.parse(e.postData.contents);
+    const ss     = SpreadsheetApp.getActiveSpreadsheet();
+    const action = data.action || 'syncAll';
+
+    if (action === 'syncAll') {
+      if (data.sugarLog) writeSugar(ss, data.sugarLog);
+      if (data.dosesLog) writeDoses(ss, data.dosesLog);
+      if (data.settings) writeConfig(ss, data.settings);
+      return jsonResponse({ ok: true, ts: new Date().toISOString() });
+    }
+    return jsonResponse({ ok: false, error: 'Unknown action' });
+  } catch(err) {
+    return jsonResponse({ ok: false, error: err.toString() });
+  }
+}
+
+function getOrCreate(ss, name) {
+  return ss.getSheetByName(name) || ss.insertSheet(name);
+}
+
+function getSheetData(ss, name) {
+  const sheet = ss.getSheetByName(name);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  const rows = sheet.getRange(2, 1, sheet.getLastRow()-1, sheet.getLastColumn()).getValues();
+  return rows.map(r => {
+    try { return JSON.parse(r[0]); } catch(e) { return null; }
+  }).filter(Boolean);
+}
+
+function writeSugar(ss, log) {
+  const sheet = getOrCreate(ss, SHEET_NAME_SUGAR);
+  sheet.clearContents();
+  sheet.appendRow(['JSON', 'التاريخ', 'الوقت', 'القراءة', 'التوقيت', 'ملاحظة']);
+  sheet.getRange(1,1,1,6).setFontWeight('bold').setBackground('#1a73e8').setFontColor('#ffffff');
+  log.forEach(r => {
+    const d = new Date(r.ts);
+    sheet.appendRow([
+      JSON.stringify(r),
+      d.toLocaleDateString('ar-EG'),
+      d.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}),
+      r.v,
+      r.timing || '',
+      r.note || ''
+    ]);
+  });
+}
+
+function writeDoses(ss, log) {
+  const sheet = getOrCreate(ss, SHEET_NAME_DOSES);
+  sheet.clearContents();
+  sheet.appendRow(['JSON', 'التاريخ', 'الوقت', 'النوع', 'الجرعة', 'الوجبة', 'السكر']);
+  sheet.getRange(1,1,1,7).setFontWeight('bold').setBackground('#0f9d58').setFontColor('#ffffff');
+  log.forEach(r => {
+    const d = new Date(r.ts);
+    sheet.appendRow([
+      JSON.stringify(r),
+      d.toLocaleDateString('ar-EG'),
+      d.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}),
+      r.type, r.dose, r.meal || '', r.sugar || ''
+    ]);
+  });
+}
+
+function writeConfig(ss, cfg) {
+  const sheet = getOrCreate(ss, SHEET_NAME_CONFIG);
+  sheet.clearContents();
+  sheet.appendRow(['الإعداد', 'القيمة']);
+  sheet.getRange(1,1,1,2).setFontWeight('bold').setBackground('#f4b400').setFontColor('#000');
+  Object.entries(cfg).forEach(([k,v]) => sheet.appendRow([k, v]));
+}
+
+function getConfig(ss) {
+  const sheet = ss.getSheetByName(SHEET_NAME_CONFIG);
+  if (!sheet || sheet.getLastRow() < 2) return {};
+  const rows = sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues();
+  const cfg = {};
+  rows.forEach(r => { if(r[0]) cfg[r[0]] = r[1]; });
+  return cfg;
+}
+
+function jsonResponse(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}`;
+
+// =========================================
+// FOOD DATABASE
+// =========================================
+const FOODS={
+  starches:[
+    {e:'🍚',n:'أرز أبيض مطبوخ (كوب 200جم)',c:45,gi:72,gi_lbl:'مرتفع',tip:'الأسرع في رفع السكر'},
+    {e:'🍚',n:'أرز بُر (كوب 200جم)',c:38,gi:55,gi_lbl:'متوسط',tip:'أفضل من الأبيض'},
+    {e:'🍞',n:'عيش أبيض (حبة)',c:15,gi:71,gi_lbl:'مرتفع',tip:''},
+    {e:'🌾',n:'عيش بُر / جراهام (حبة)',c:12,gi:50,gi_lbl:'متوسط',tip:'الأفضل للسكر'},
+    {e:'🍝',n:'مكرونة مطبوخة (كوب)',c:40,gi:50,gi_lbl:'متوسط',tip:'al dente أبطأ'},
+    {e:'🥔',n:'بطاطس مسلوقة (متوسطة)',c:30,gi:78,gi_lbl:'مرتفع',tip:'مبردة أبطأ'},
+    {e:'🌽',n:'ذرة مطبوخة (كوب)',c:35,gi:60,gi_lbl:'متوسط',tip:''},
+    {e:'🫘',n:'عدس مطبوخ (كوب)',c:25,gi:30,gi_lbl:'منخفض',tip:'💚 ممتاز'},
+    {e:'🫘',n:'فول مطبوخ (كوب)',c:22,gi:25,gi_lbl:'منخفض',tip:'💚 ممتاز'},
+    {e:'🌾',n:'شوفان مطبوخ (كوب)',c:30,gi:55,gi_lbl:'متوسط',tip:'ممتاز للفطار'},
+  ],
+  proteins:[
+    {e:'🥚',n:'بيض (2 حبة)',c:1,gi:0,gi_lbl:'صفر',tip:'ممتاز'},
+    {e:'🍗',n:'فراخ مشوية (100جم)',c:0,gi:0,gi_lbl:'صفر',tip:'ممتاز'},
+    {e:'🐟',n:'سمك مشوي (100جم)',c:0,gi:0,gi_lbl:'صفر',tip:'💚 أفضل بروتين'},
+    {e:'🥩',n:'لحم بقري مشوي (100جم)',c:0,gi:0,gi_lbl:'صفر',tip:''},
+    {e:'🧀',n:'جبن قريش (100جم)',c:3,gi:0,gi_lbl:'صفر',tip:'ممتاز'},
+    {e:'🥜',n:'مكسرات مشكلة (حفنة)',c:6,gi:15,gi_lbl:'منخفض',tip:'وجبة خفيفة ممتازة'},
+  ],
+  fruits:[
+    {e:'🍎',n:'تفاحة متوسطة',c:20,gi:38,gi_lbl:'منخفض',tip:'💚 مثالية'},
+    {e:'🍊',n:'برتقالة',c:15,gi:40,gi_lbl:'منخفض',tip:'💚 ممتازة'},
+    {e:'🍓',n:'فراولة كوب',c:12,gi:25,gi_lbl:'منخفض',tip:'💚 الأفضل'},
+    {e:'🍇',n:'عنب كوب (150جم)',c:25,gi:53,gi_lbl:'متوسط',tip:'بحذر'},
+    {e:'🍌',n:'موزة صغيرة',c:20,gi:52,gi_lbl:'متوسط',tip:''},
+    {e:'🍌',n:'موزة كبيرة ناضجة',c:30,gi:65,gi_lbl:'مرتفع',tip:'تجنب الناضج جداً'},
+    {e:'🥭',n:'مانجو (شريحتين)',c:35,gi:60,gi_lbl:'مرتفع',tip:'بحذر'},
+    {e:'🍉',n:'بطيخ (شريحة)',c:20,gi:72,gi_lbl:'مرتفع',tip:''},
+    {e:'🫐',n:'بلوبيري كوب',c:18,gi:25,gi_lbl:'منخفض',tip:'💚 مضاد أكسدة'},
+    {e:'🍑',n:'تمر (3 حبات)',c:18,gi:50,gi_lbl:'متوسط',tip:'للإفطار في رمضان'},
+  ],
+  vegs:[
+    {e:'🥦',n:'بروكلي (كوب)',c:5,gi:10,gi_lbl:'منخفض',tip:'💚 ممتاز'},
+    {e:'🥬',n:'سبانخ (كوب)',c:1,gi:0,gi_lbl:'صفر',tip:'💚 بلا قيود'},
+    {e:'🥕',n:'جزر (متوسطة)',c:6,gi:39,gi_lbl:'منخفض',tip:'💚 جيد'},
+    {e:'🍅',n:'طماطم (حبة)',c:5,gi:15,gi_lbl:'منخفض',tip:'💚 ممتاز'},
+    {e:'🥒',n:'خيار (حبة)',c:3,gi:10,gi_lbl:'منخفض',tip:'💚 بلا قيود'},
+    {e:'🫑',n:'فلفل (حبة)',c:6,gi:10,gi_lbl:'منخفض',tip:'💚 فيتامين C'},
+  ],
+  sweets:[
+    {e:'🍫',n:'شوكولاتة داكنة (30جم)',c:15,gi:40,gi_lbl:'متوسط',tip:'أفضل من الحليب'},
+    {e:'🍰',n:'كيكة (قطعة)',c:50,gi:80,gi_lbl:'مرتفع',tip:'⚠️ جرعة كبيرة'},
+    {e:'🍦',n:'آيسكريم (كوب صغير)',c:30,gi:60,gi_lbl:'مرتفع',tip:'⚠️ بحذر'},
+    {e:'🍯',n:'عسل (ملعقة كبيرة)',c:17,gi:55,gi_lbl:'متوسط',tip:''},
+  ],
+  egyptian:[
+    {e:'🥙',n:'فول بالزيت (طبق)',c:25,gi:25,gi_lbl:'منخفض',tip:'💚 فطار ممتاز'},
+    {e:'🥙',n:'فلافل (5 حبات)',c:25,gi:50,gi_lbl:'متوسط',tip:''},
+    {e:'🍲',n:'كشري (طبق صغير)',c:60,gi:55,gi_lbl:'متوسط',tip:'البقوليات تبطئ الامتصاص'},
+    {e:'🥗',n:'سلطة خضراء (طبق)',c:8,gi:10,gi_lbl:'منخفض',tip:'💚 ابدأ بها'},
+    {e:'🥣',n:'شوربة عدس (طبق)',c:20,gi:30,gi_lbl:'منخفض',tip:'💚 ممتازة'},
+    {e:'🥞',n:'فطير مشلتت (شريحة)',c:45,gi:70,gi_lbl:'مرتفع',tip:'⚠️ بحذر'},
+    {e:'🫓',n:'عيش بلدي (2 حبة)',c:35,gi:65,gi_lbl:'متوسط',tip:''},
+    {e:'🍖',n:'كباب/كفتة (100جم)',c:0,gi:0,gi_lbl:'صفر',tip:'💚 ممتاز'},
+  ]
+};
+
+// =========================================
+// PWA SETUP
+// =========================================
+let deferredInstall=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredInstall=e;
+  document.getElementById('install-banner').style.display='flex';
+});
+function installPWA(){
+  if(!deferredInstall)return;
+  deferredInstall.prompt();
+  deferredInstall.userChoice.then(()=>{
+    deferredInstall=null;
+    document.getElementById('install-banner').style.display='none';
+  });
+}
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js')
+      .then(()=>console.log('SW registered'))
+      .catch(e=>console.log('SW failed:',e));
+  });
+}
+
+// =========================================
+// GOOGLE SHEETS SYNC
+// =========================================
+function saveGSUrl(){
+  gsUrl=document.getElementById('gs-url').value.trim();
+  DB.set('gsUrl',gsUrl);
+  toast('✅ تم حفظ الرابط');
+  updateSyncBanner();
+}
+function updateSyncBanner(){
+  const banner=document.getElementById('sync-banner');
+  if(banner) banner.style.display=gsUrl?'block':'none';
+}
+function setSyncDot(state){
+  const d=document.getElementById('sync-dot');
+  d.className='sync-dot '+(state==='ok'?'ok':state==='syncing'?'syncing':'err');
+}
+async function syncToSheets(){
+  if(!gsUrl){toast('⚠️ أدخل رابط Apps Script أولاً','var(--yellow)');showPage('settings',document.querySelector('.tab:last-child'));return;}
+  setSyncDot('syncing');
+  const el=document.getElementById('sync-status');
+  if(el) el.textContent='⏳ جاري الرفع...';
+  try{
+    const payload={
+      action:'syncAll',
+      sugarLog,dosesLog,settings,
+      ts:new Date().toISOString()
+    };
+    const resp=await fetch(gsUrl,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload),
+      mode:'no-cors'
+    });
+    setSyncDot('ok');
+    const now=new Date().toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
+    DB.set('lastSync',now);
+    const lt=document.getElementById('sync-last-time');
+    if(lt) lt.textContent='آخر مزامنة: '+now;
+    if(el) el.textContent='✅ تم الرفع بنجاح — '+now;
+    toast('✅ تمت المزامنة مع Google Sheets');
+  }catch(err){
+    setSyncDot('err');
+    if(el) el.textContent='❌ فشل الاتصال: '+err.message;
+    toast('❌ فشل الاتصال','var(--red)');
+  }
+}
+async function syncFromSheets(){
+  if(!gsUrl){toast('⚠️ أدخل رابط Apps Script أولاً','var(--yellow)');return;}
+  setSyncDot('syncing');
+  const el=document.getElementById('sync-status');
+  if(el) el.textContent='⏳ جاري الجلب...';
+  try{
+    const resp=await fetch(gsUrl+'?action=getData',{mode:'cors'});
+    const d=await resp.json();
+    if(d.ok){
+      if(d.sugar&&d.sugar.length){sugarLog=d.sugar;DB.set('sugar',sugarLog);}
+      if(d.doses&&d.doses.length){dosesLog=d.doses;DB.set('doses',dosesLog);}
+      setSyncDot('ok');
+      if(el) el.textContent='✅ تم الجلب بنجاح';
+      toast('✅ تم جلب البيانات من Google Sheets');
+      updateHome();renderSugar();renderDoses();
+    }else{
+      throw new Error(d.error||'Server error');
+    }
+  }catch(err){
+    setSyncDot('err');
+    if(el) el.textContent='❌ '+err.message;
+    toast('❌ فشل الجلب — تأكد من إعداد Apps Script','var(--red)');
+  }
+}
+
+// =========================================
+// CLOCK
+// =========================================
+function updateClock(){
+  document.getElementById('clock').textContent=
+    new Date().toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
+}
+setInterval(updateClock,1000);updateClock();
+
+// =========================================
+// TOAST
+// =========================================
+function toast(msg,col='var(--green)'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.borderColor=col;t.style.color=col;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// =========================================
+// TABS
+// =========================================
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el&&el.classList) el.classList.add('active');
+  if(id==='home'){updateHome();}
+  if(id==='sugar'){renderSugar();}
+  if(id==='doses'){renderDoses();}
+  if(id==='settings'){loadSettings();}
+  if(id==='food'){renderFoods();}
+}
+
+// =========================================
+// HELPERS
+// =========================================
+function fmtDate(ts){return new Date(ts).toLocaleDateString('ar-EG',{day:'numeric',month:'short'});}
+function fmtTime(ts){return new Date(ts).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});}
+function sugarStatus(v){
+  if(v<70)  return['هبوط خطير','badge-vhigh'];
+  if(v<80)  return['منخفض','badge-low'];
+  if(v<=130)return['مثالي','badge-ok'];
+  if(v<=180)return['مقبول','badge-ok'];
+  if(v<=250)return['مرتفع','badge-high'];
+  return['مرتفع جداً','badge-vhigh'];
+}
+function today(){const d=new Date();d.setHours(0,0,0,0);return d.getTime();}
+function calcTIR(){
+  if(!sugarLog.length)return{tir:0,below:0,above:0,inRange:0};
+  const n=sugarLog.length;
+  const inRange=sugarLog.filter(s=>s.v>=70&&s.v<=180).length;
+  const below=sugarLog.filter(s=>s.v<70).length;
+  const above=sugarLog.filter(s=>s.v>180).length;
+  return{tir:Math.round(inRange/n*100),below:Math.round(below/n*100),above:Math.round(above/n*100),inRange:Math.round(inRange/n*100)};
+}
+
+// =========================================
+// HOME
+// =========================================
+function updateHome(){
+  const td=dosesLog.filter(d=>new Date(d.ts).setHours(0,0,0,0)===today()).length;
+  document.getElementById('stat-today-doses').textContent=td;
+  document.getElementById('sch-breakfast').textContent=settings.b+'u';
+  document.getElementById('sch-lunch').textContent=settings.l+'u';
+  document.getElementById('sch-dinner').textContent=settings.d+'u';
+  document.getElementById('sch-lantus').textContent=settings.lantus+'u';
+  const tir=calcTIR();
+  document.getElementById('stat-tir').textContent=tir.tir+'%';
+  const bar=document.getElementById('tir-bar');
+  bar.style.width=tir.tir+'%';
+  bar.style.background=tir.tir>=70?'var(--green)':tir.tir>=50?'var(--yellow)':'var(--red)';
+  document.getElementById('tir-legend').innerHTML=
+    `<span style="color:var(--green)">✅ ${tir.inRange}%</span> `+
+    `<span style="color:var(--red)">⬇️ ${tir.below}%</span> `+
+    `<span style="color:var(--yellow)">⬆️ ${tir.above}%</span> `+
+    `<span style="color:var(--text3);font-size:9.5px">(الهدف >70%)</span>`;
+  const ls=sugarLog[sugarLog.length-1];
+  if(ls){
+    document.getElementById('stat-last-sugar').textContent=ls.v;
+    const[,cls]=sugarStatus(ls.v);
+    document.getElementById('stat-last-card').className='stat '+(cls==='badge-ok'?'good':cls==='badge-high'?'warn':'bad');
+  }
+  const tbl=document.getElementById('home-sugar-table');
+  const empty=document.getElementById('home-sugar-empty');
+  const recent=sugarLog.slice(-5).reverse();
+  if(!recent.length){tbl.style.display='none';empty.style.display='block';return;}
+  tbl.style.display='';empty.style.display='none';
+  tbl.innerHTML='<tr><th>الوقت</th><th>القراءة</th><th>الحالة</th></tr>'+
+    recent.map(r=>{const[l,c]=sugarStatus(r.v);return`<tr><td>${fmtTime(r.ts)}</td><td style="font-family:monospace;font-weight:700">${r.v}</td><td><span class="sugar-badge ${c}">${l}</span></td></tr>`;}).join('');
+  // sync banner
+  const lastSync=DB.get('lastSync');
+  const lt=document.getElementById('sync-last-time');
+  if(lt&&lastSync) lt.textContent='آخر مزامنة: '+lastSync;
+  updateSyncBanner();
+}
+
+// =========================================
+// CALC
+// =========================================
+function fillMealCarbs(){
+  const sel=document.getElementById('c-meal-type');
+  const opt=sel.options[sel.selectedIndex];
+  if(opt.dataset.carb)document.getElementById('c-carbs').value=opt.dataset.carb;
+}
+function calcDose(){
+  const sugar=parseFloat(document.getElementById('c-sugar').value)||settings.target;
+  const carbs=parseFloat(document.getElementById('c-carbs').value)||60;
+  const timing=document.getElementById('c-timing').value;
+  let mealDose=carbs/settings.ratio;
+  let corrDose=sugar>settings.target?(sugar-settings.target)/settings.cf:0;
+  if(timing==='exercise') mealDose*=0.8;
+  const total=Math.max(1,Math.round(mealDose+corrDose));
+  document.getElementById('calc-dose').textContent=total;
+  let note='';
+  if(sugar<70) note='🚨 سكر منخفض — أكل أولاً!';
+  else if(sugar<80) note='⚠️ سكر منخفض — راقب';
+  else if(sugar>250) note='⚠️ سكر مرتفع جداً';
+  else if(timing==='exercise') note='🏃 −20% بسبب الرياضة';
+  else if(timing==='highfat') note='🥩 وجبة دسمة — قد يتأخر 2-3 ساعات';
+  document.getElementById('calc-note').textContent=note;
+  document.getElementById('calc-breakdown').innerHTML=`${carbs}÷${settings.ratio}=${mealDose.toFixed(1)}u | تصحيح: ${corrDose.toFixed(1)}u`;
+  document.getElementById('calc-result').style.display='block';
+}
+function calcEmergency(){
+  const sugar=parseFloat(document.getElementById('e-sugar').value)||settings.target;
+  const carbs=parseFloat(document.getElementById('e-size').value)||60;
+  let dose=Math.round(carbs/settings.ratio);
+  if(sugar>settings.target) dose+=Math.round((sugar-settings.target)/settings.cf);
+  dose=Math.max(1,dose);
+  document.getElementById('emer-dose').textContent=dose;
+  document.getElementById('emer-note').textContent=sugar<80?'⚠️ أكل أولاً ثم الجرعة':'أعطِها الآن — أكتراپيد يتأخر 30 دقيقة';
+  document.getElementById('emer-result').style.display='block';
+}
+function calcCorrection(){
+  const sugar=parseFloat(document.getElementById('corr-sugar').value)||0;
+  if(sugar<=settings.target){
+    document.getElementById('corr-dose').textContent='0';
+    document.getElementById('corr-note').textContent='السكر في المدى — لا تصحيح';
+    document.getElementById('corr-result').style.display='block';return;
+  }
+  const dose=Math.max(1,Math.round((sugar-settings.target)/settings.cf));
+  document.getElementById('corr-dose').textContent=dose;
+  document.getElementById('corr-note').textContent=sugar>300?'⚠️ مرتفع جداً — استشر الطبيب':'بدون وجبة';
+  document.getElementById('corr-result').style.display='block';
+}
+function saveDoseFromCalc(){
+  const dose=parseInt(document.getElementById('calc-dose').textContent);
+  const meal=document.getElementById('c-meal-type').value||'breakfast';
+  const sugar=parseFloat(document.getElementById('c-sugar').value)||0;
+  dosesLog.push({ts:Date.now(),type:'actrapid',dose,meal,sugar});
+  DB.set('doses',dosesLog);
+  toast('✅ تم حفظ الجرعة: '+dose+' وحدة');
+}
+
+// =========================================
+// CONVERSION
+// =========================================
+function calcConversion(){
+  const dose=parseFloat(document.getElementById('conv-dose').value)||0;
+  if(!dose){alert('أدخل الجرعة');return;}
+  const to=document.getElementById('conv-to').value;
+  const map={
+    novorapid:[Math.round(dose*.85),'وحدة NovoRapid/Humalog','قلل 10-15%. قبل الأكل بـ 10-15 دقيقة فقط (بدلاً من 30).'],
+    fiasp:[Math.round(dose*.85),'وحدة Fiasp','يبدأ في 5 دقائق — مع بداية الأكل أو بعده مباشرة.'],
+    humulinR:[dose,'وحدة Humulin R','نفس الجرعة والتوقيت (30 دقيقة قبل الأكل).'],
+    toujeo:[Math.round(dose*1.1),'وحدة Toujeo U-300','زيادة طفيفة. يستغرق 5 أيام للتوازن الكامل.'],
+    tresiba:[dose,'وحدة Tresiba (Degludec)','نفس الجرعة. 42+ ساعة — مرونة في التوقيت. مثالي لرمضان.'],
+  };
+  const[r,u,n]=map[to];
+  document.getElementById('conv-output').textContent=r;
+  document.getElementById('conv-unit').textContent=u;
+  document.getElementById('conv-note').textContent='⚠️ '+n+' — استشر طبيبك.';
+  document.getElementById('conv-result').style.display='block';
+}
+
+// =========================================
+// SUGAR
+// =========================================
+function saveSugar(){
+  const v=parseFloat(document.getElementById('s-value').value);
+  if(!v||v<20||v>600){alert('قراءة غير صحيحة');return;}
+  sugarLog.push({ts:Date.now(),v,timing:document.getElementById('s-timing').value,note:document.getElementById('s-note').value});
+  DB.set('sugar',sugarLog);
+  document.getElementById('s-value').value='';
+  document.getElementById('s-note').value='';
+  renderSugar();updateHome();autoAdjust();
+  toast('✅ '+v+' mg/dL — تم الحفظ');
+}
+function autoAdjust(){
+  const r=sugarLog.filter(s=>s.timing&&s.timing.startsWith('after-')&&s.ts>Date.now()-7*864e5);
+  if(r.length<3)return;
+  const avg=r.reduce((a,b)=>a+b.v,0)/r.length;
+  if(avg>210) toast('💡 متوسط بعد الوجبة '+Math.round(avg)+' — قد تحتاج زيادة الجرعة','var(--yellow)');
+  else if(avg<110) toast('💡 متوسط بعد الوجبة '+Math.round(avg)+' — قد تحتاج تخفيض الجرعة','var(--cyan)');
+}
+function renderSugar(){
+  const tbl=document.getElementById('sugar-table');
+  const empty=document.getElementById('sugar-empty');
+  if(!sugarLog.length){
+    tbl.style.display='none';empty.style.display='block';
+    ['ss-avg','ss-min','ss-max'].forEach(id=>document.getElementById(id).textContent='---');
+    document.getElementById('mini-chart').innerHTML='';
+    document.getElementById('tir-detail').innerHTML='';
+    return;
+  }
+  tbl.style.display='';empty.style.display='none';
+  const vals=sugarLog.map(s=>s.v);
+  document.getElementById('ss-avg').textContent=Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
+  document.getElementById('ss-min').textContent=Math.min(...vals);
+  document.getElementById('ss-max').textContent=Math.max(...vals);
+  const tir=calcTIR();
+  document.getElementById('tir-detail').innerHTML=
+    `<div style="font-size:10.5px;color:var(--text2);margin-bottom:5px">Time in Range</div>
+    <div style="display:flex;gap:3px;height:10px;border-radius:5px;overflow:hidden;margin-bottom:5px">
+      <div style="width:${tir.below}%;background:var(--red)"></div>
+      <div style="width:${tir.inRange}%;background:var(--green)"></div>
+      <div style="width:${tir.above}%;background:var(--yellow)"></div>
+    </div>
+    <div style="display:flex;gap:10px;font-size:10.5px">
+      <span style="color:var(--red)">⬇️${tir.below}%</span>
+      <span style="color:var(--green)">✅${tir.inRange}%</span>
+      <span style="color:var(--yellow)">⬆️${tir.above}%</span>
+    </div>`;
+  tbl.innerHTML='<tr><th>التاريخ</th><th>الوقت</th><th>القراءة</th><th>الحالة</th><th>ملاحظة</th><th></th></tr>'+
+    sugarLog.slice().reverse().map((r,i)=>{
+      const idx=sugarLog.length-1-i;
+      const[l,c]=sugarStatus(r.v);
+      return`<tr><td>${fmtDate(r.ts)}</td><td>${fmtTime(r.ts)}</td>
+        <td style="font-family:monospace;font-weight:700">${r.v}</td>
+        <td><span class="sugar-badge ${c}">${l}</span></td>
+        <td style="font-size:10.5px;color:var(--text2)">${r.note||''}</td>
+        <td><button class="del-btn" onclick="delSugar(${idx})">×</button></td></tr>`;
+    }).join('');
+  renderMiniChart();
+}
+function delSugar(i){sugarLog.splice(i,1);DB.set('sugar',sugarLog);renderSugar();}
+function clearSugar(){if(confirm('مسح قراءات السكر؟')){sugarLog=[];DB.set('sugar',sugarLog);renderSugar();updateHome();}}
+function renderMiniChart(){
+  const c=document.getElementById('mini-chart');
+  const last=sugarLog.slice(-14);
+  if(!last.length){c.innerHTML='';return;}
+  const mx=Math.max(...last.map(s=>s.v),300);
+  c.innerHTML=last.map(s=>{
+    const h=Math.max(3,Math.round((s.v/mx)*65));
+    const col=s.v<70?'var(--cyan)':s.v<=180?'var(--green)':s.v<=250?'var(--yellow)':'var(--red)';
+    return`<div class="bar-wrap"><div class="bar" style="height:${h}px;background:${col}"></div><div class="bar-lbl">${s.v}</div></div>`;
+  }).join('');
+}
+
+// =========================================
+// DOSES
+// =========================================
+function saveDose(){
+  const dose=parseFloat(document.getElementById('d-dose').value);
+  if(!dose||dose<1){alert('أدخل جرعة صحيحة');return;}
+  dosesLog.push({ts:Date.now(),type:document.getElementById('d-type').value,dose,
+    meal:document.getElementById('d-meal').value,sugar:parseFloat(document.getElementById('d-sugar').value)||0});
+  DB.set('doses',dosesLog);
+  document.getElementById('d-dose').value='';
+  document.getElementById('d-sugar').value='';
+  renderDoses();updateHome();
+  toast('✅ تم حفظ الجرعة: '+dose+' وحدة');
+}
+function renderDoses(){
+  const tbl=document.getElementById('doses-table');
+  const empty=document.getElementById('doses-empty');
+  if(!dosesLog.length){tbl.style.display='none';empty.style.display='block';return;}
+  tbl.style.display='';empty.style.display='none';
+  const mL={breakfast:'فطار',lunch:'غداء',dinner:'عشاء',bedtime:'نوم',correction:'تصحيح',emergency:'طوارئ'};
+  const tL={actrapid:'أكتراپيد',lantus:'لانتس',novorapid:'نوفوراپيد',other:'آخر'};
+  tbl.innerHTML='<tr><th>التاريخ</th><th>الوقت</th><th>النوع</th><th>الجرعة</th><th>الوجبة</th><th>السكر</th><th></th></tr>'+
+    dosesLog.slice().reverse().map((r,i)=>{
+      const idx=dosesLog.length-1-i;
+      const col=r.type==='lantus'?'var(--purple)':r.type==='novorapid'?'var(--green)':'var(--cyan)';
+      return`<tr><td>${fmtDate(r.ts)}</td><td>${fmtTime(r.ts)}</td>
+        <td style="color:${col};font-weight:600">${tL[r.type]||r.type}</td>
+        <td style="font-family:monospace;font-weight:700;color:${col}">${r.dose}u</td>
+        <td>${mL[r.meal]||r.meal}</td><td>${r.sugar||'-'}</td>
+        <td><button class="del-btn" onclick="delDose(${idx})">×</button></td></tr>`;
+    }).join('');
+}
+function delDose(i){dosesLog.splice(i,1);DB.set('doses',dosesLog);renderDoses();}
+function clearDoses(){if(confirm('مسح سجل الجرعات؟')){dosesLog=[];DB.set('doses',dosesLog);renderDoses();}}
+
+// =========================================
+// FOOD
+// =========================================
+function renderFoods(){
+  [['starches','food-starches'],['proteins','food-proteins'],['fruits','food-fruits'],
+   ['vegs','food-vegs'],['sweets','food-sweets'],['egyptian','food-egyptian']].forEach(([k,id])=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.innerHTML=FOODS[k].map(f=>{
+      const gc=f.gi_lbl==='منخفض'?'gi-low':f.gi_lbl==='متوسط'?'gi-med':f.gi_lbl==='مرتفع'?'gi-high':'gi-low';
+      const dose=f.c>0?Math.max(1,Math.round(f.c/settings.ratio)):0;
+      return`<div class="food-row" onclick="selectFoodItem(${f.c})">
+        <div class="food-emoji">${f.e}</div>
+        <div class="food-info"><div class="food-name">${f.n}</div><div class="food-detail">${f.tip||'اضغط للاستخدام'}</div></div>
+        <div style="text-align:center"><div class="food-carb">${f.c>0?f.c+'جم':'-'}</div><div class="food-gi ${gc}">${f.gi_lbl}</div></div>
+        <div class="food-dose">${f.c>0?dose+'u':'-'}</div>
+      </div>`;
+    }).join('');
+  });
+}
+function selectFoodItem(carbs){
+  showPage('food',null);
+  document.getElementById('f-carbs').value=carbs;
+  document.getElementById('f-carbs').focus();
+  toast('✅ '+carbs+'جم كارب — احسب الجرعة ⬆️');
+}
+function calcFood(){
+  const carbs=parseFloat(document.getElementById('f-carbs').value)||0;
+  if(!carbs){alert('أدخل الكارب أو اختر طعاماً');return;}
+  const sugar=parseFloat(document.getElementById('f-sugar').value)||settings.target;
+  let dose=carbs/settings.ratio;
+  if(sugar>settings.target) dose+=(sugar-settings.target)/settings.cf;
+  dose=Math.max(1,Math.round(dose));
+  document.getElementById('food-dose').textContent=dose;
+  document.getElementById('food-note').textContent=sugar<70?'⚠️ سكر منخفض — أكل أولاً':sugar>250?'⚠️ سكر مرتفع':'';
+  document.getElementById('food-result').style.display='block';
+}
+
+// =========================================
+// RAMADAN
+// =========================================
+function saveRamadan(){
+  DB.set('ramadan',{iftar:document.getElementById('r-iftar').value,suhoor:document.getElementById('r-suhoor').value,
+    lantus:document.getElementById('r-lantus').value,notes:document.getElementById('r-notes').value});
+  document.getElementById('ramadan-saved').style.display='block';
+  setTimeout(()=>document.getElementById('ramadan-saved').style.display='none',2000);
+}
+(()=>{const r=DB.get('ramadan');if(!r)return;
+  if(r.iftar)document.getElementById('r-iftar').value=r.iftar;
+  if(r.suhoor)document.getElementById('r-suhoor').value=r.suhoor;
+  if(r.lantus)document.getElementById('r-lantus').value=r.lantus;
+  if(r.notes)document.getElementById('r-notes').value=r.notes;
+})();
+
+// =========================================
+// SETTINGS
+// =========================================
+function loadSettings(){
+  document.getElementById('set-ratio').value=settings.ratio;
+  document.getElementById('set-cf').value=settings.cf;
+  document.getElementById('set-target').value=settings.target;
+  document.getElementById('set-b').value=settings.b;
+  document.getElementById('set-l').value=settings.l;
+  document.getElementById('set-d').value=settings.d;
+  document.getElementById('set-lantus').value=settings.lantus;
+  const gsInput=document.getElementById('gs-url');
+  if(gsInput) gsInput.value=gsUrl||'';
+  document.getElementById('settings-display').innerHTML=`
+    <div class="toggle-row"><span class="toggle-label">نسبة ICR</span><span class="toggle-val">1u/${settings.ratio}جم</span></div>
+    <div class="toggle-row"><span class="toggle-label">عامل ISF</span><span class="toggle-val">1u→${settings.cf} mg/dL</span></div>
+    <div class="toggle-row"><span class="toggle-label">المستهدف</span><span class="toggle-val">${settings.target} mg/dL</span></div>
+    <div class="toggle-row"><span class="toggle-label">أكتراپيد ف/غ/ع</span><span class="toggle-val">${settings.b}/${settings.l}/${settings.d}u</span></div>
+    <div class="toggle-row"><span class="toggle-label">لانتس 12 ليل</span><span class="toggle-val">${settings.lantus}u</span></div>
+    <div class="toggle-row"><span class="toggle-label">Google Sheets</span><span class="toggle-val" style="font-size:10px;font-family:'Tajawal'">${gsUrl?'✅ مرتبط':'❌ غير مرتبط'}</span></div>`;
+  // inject apps script code into code block
+  document.getElementById('apps-script-code').textContent=APPS_SCRIPT_CODE;
+  updateSyncBanner();
+}
+function saveSettings(){
+  settings={ratio:parseFloat(document.getElementById('set-ratio').value)||10,
+    cf:parseFloat(document.getElementById('set-cf').value)||50,
+    target:parseFloat(document.getElementById('set-target').value)||120,
+    b:parseFloat(document.getElementById('set-b').value)||8,
+    l:parseFloat(document.getElementById('set-l').value)||10,
+    d:parseFloat(document.getElementById('set-d').value)||8,
+    lantus:parseFloat(document.getElementById('set-lantus').value)||12};
+  DB.set('settings',settings);
+  document.getElementById('settings-saved').style.display='block';
+  setTimeout(()=>document.getElementById('settings-saved').style.display='none',2000);
+  loadSettings();updateHome();
+  toast('✅ تم حفظ الإعدادات');
+}
+
+// =========================================
+// COPY FUNCTIONS
+// =========================================
+function copyAppScript(){
+  const btn=document.getElementById('copy-as-btn');
+  navigator.clipboard.writeText(APPS_SCRIPT_CODE).then(()=>{
+    btn.textContent='✅ تم النسخ!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='📋 انسخ كود Apps Script';btn.classList.remove('copied');},2500);
+  }).catch(()=>{
+    // Fallback for mobile
+    const ta=document.createElement('textarea');
+    ta.value=APPS_SCRIPT_CODE;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent='✅ تم النسخ!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='📋 انسخ كود Apps Script';btn.classList.remove('copied');},2500);
+  });
+}
+function copyFileStructure(){
+  navigator.clipboard.writeText('diabetes-app/\n├── index.html\n├── manifest.json\n├── sw.js\n└── icon-192.png').then(()=>toast('✅ تم نسخ هيكل الملفات'));
+}
+
+// =========================================
+// EXPORT / IMPORT
+// =========================================
+function exportData(){
+  const blob=new Blob([JSON.stringify({settings,sugarLog,dosesLog,ramadan:DB.get('ramadan'),exported:new Date().toISOString()},null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='MAlsawah_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+}
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.settings){settings=d.settings;DB.set('settings',settings);}
+      if(d.sugarLog){sugarLog=d.sugarLog;DB.set('sugar',sugarLog);}
+      if(d.dosesLog){dosesLog=d.dosesLog;DB.set('doses',dosesLog);}
+      if(d.ramadan) DB.set('ramadan',d.ramadan);
+      toast('✅ تم الاستيراد بنجاح');updateHome();
+    }catch(err){alert('ملف غير صحيح');}
+  };
+  reader.readAsText(file);
+}
+function clearAll(){
+  localStorage.clear();sugarLog=[];dosesLog=[];
+  settings={ratio:10,cf:50,target:120,b:8,l:10,d:8,lantus:12};
+  DB.set('settings',settings);
+  updateHome();renderSugar();renderDoses();
+  toast('✅ تم المسح','var(--red)');
+}
+
+// =========================================
+// INIT
+// =========================================
+updateHome();
+renderSugar();
+renderDoses();
+// Show sync last time
+const _lastSync=DB.get('lastSync');
+if(_lastSync){const lt=document.getElementById('sync-last-time');if(lt)lt.textContent='آخر مزامنة: '+_lastSync;}
+</script>
+</body>
+</html>
